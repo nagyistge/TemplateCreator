@@ -558,7 +558,7 @@ namespace TemplateCreator
                 }
                 else if (tool == Tool.Rect)
                 {
-                    if (((adorner.X1 == adorner.X2) && (adorner.Y1 == adorner.Y2)) == false)
+                    if (((adorner.X1 == adorner.X2) || (adorner.Y1 == adorner.Y2)) == false)
                     {
                         var rect = CreateRect(adorner.X1, adorner.Y1, x, y);
                         canvas.Children.Add(rect);
@@ -566,7 +566,7 @@ namespace TemplateCreator
                 }
                 else if (tool == Tool.Circle)
                 {
-                    if (((adorner.X1 == adorner.X2) && (adorner.Y1 == adorner.Y2)) == false)
+                    if (((adorner.X1 == adorner.X2) || (adorner.Y1 == adorner.Y2)) == false)
                     {
                         var circle = CreateCircle(adorner.X1, adorner.Y1, x, y);
                         canvas.Children.Add(circle);
