@@ -34,10 +34,9 @@
 
         <StackPanel Grid.Column="1"
                     VerticalAlignment="Center" 
-                    HorizontalAlignment="Right"
-                    Margin="8">
+                    HorizontalAlignment="Right">
 
-            <Grid>
+            <Grid Margin="8" HorizontalAlignment="Right">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="5"/>
@@ -51,32 +50,101 @@
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="DRAW" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+                
+                <TextBlock Text="line" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="polyline" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="path" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                <TextBlock Text="rect" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                <TextBlock Text="circle" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
+                <TextBlock Text="text" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6"/>
+
+                <TextBlock Text="l" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                <TextBlock Text="p" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                <TextBlock Text="a" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                <TextBlock Text="r" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+                <TextBlock Text="c" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
+                <TextBlock Text="t" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="6"/>
+                
+            </Grid>
+
+            <Grid Margin="8" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="undo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
-                <TextBlock Text="redo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
-                <TextBlock Text="open" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
-                <TextBlock Text="save" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
-                <TextBlock Text="reset" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
-                <TextBlock Text="snap" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
-                <TextBlock Text="line" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6"/>
-                <TextBlock Text="polyline" HorizontalAlignment="Right" Grid.Column="0"  Grid.Row="7"/>
-                <TextBlock Text="rect" HorizontalAlignment="Right" Grid.Column="0"  Grid.Row="8"/>
-                <TextBlock Text="scale" HorizontalAlignment="Right" Grid.Column="0"  Grid.Row="9"/>
+                <TextBlock Text="ADJUST" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
 
-                <TextBlock Text="Ctrl+Z" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="0"/>
-                <TextBlock Text="Ctrl+Y" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
-                <TextBlock Text="Ctrl+O" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
-                <TextBlock Text="Ctrl+S" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
-                <TextBlock Text="Ctrl+R" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
-                <TextBlock Text="M" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
-                <TextBlock Text="L" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="6"/>
-                <TextBlock Text="P" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2"  Grid.Row="7"/>
-                <TextBlock Text="R" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2"  Grid.Row="8"/>
-                <TextBlock Text="S" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2"  Grid.Row="9"/>
+                <TextBlock Text="move" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="scale" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="rotate" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                <TextBlock Text="deuplicate" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+
+                <TextBlock Text="v" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                <TextBlock Text="s" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                <TextBlock Text="e" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                <TextBlock Text="d" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+
+            </Grid>
+
+            <Grid Margin="8" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="MODEL" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+                
+                <TextBlock Text="undo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="redo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="open" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                <TextBlock Text="save" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                <TextBlock Text="reset" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
+
+                <TextBlock Text="ctrl+z" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                <TextBlock Text="ctrl+y" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                <TextBlock Text="ctrl+o" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                <TextBlock Text="ctrl+s" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+                <TextBlock Text="ctrl+r" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
+
+            </Grid>
+
+            <Grid Margin="8" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="OPTIONS" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+
+                <TextBlock Text="snap" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+
+                <TextBlock Text="m" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
 
             </Grid>
 
@@ -84,7 +152,8 @@
 
         <ScrollViewer Grid.Column="0" 
                       VerticalScrollBarVisibility="Auto" 
-                      HorizontalScrollBarVisibility="Auto">
+                      HorizontalScrollBarVisibility="Auto"
+                      FocusVisualStyle="{x:Null}">
 
             <Grid>
 
