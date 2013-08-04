@@ -209,68 +209,102 @@ namespace TemplateCreator
         {
             if (IsEnabled == true)
             {
-                double x = X;
-                double y = Y;
-                double width = CanvasWidth;
-                double height = CanvasHeight;
-                double offsetX = 0.5;
-                double offsetY = -0.5;
-
                 bool enableFill = EnableFill;
 
-                if (x >= 0 && x <= width)
-                {
-                    var verticalPoint0 = new Point(x + offsetX, 0);
-                    var verticalPoint1 = new Point(x + offsetX, height);
-                    drawingContext.DrawLine(PenGuides, verticalPoint0, verticalPoint1);
-                }
-
-                if (y >= 0 && y <= height)
-                {
-                    var horizontalPoint0 = new Point(0, y + offsetY);
-                    var horizontalPoint1 = new Point(width, y + offsetY);
-                    drawingContext.DrawLine(PenGuides, horizontalPoint0, horizontalPoint1);
-                }
+                DrawGuides(drawingContext);
 
                 if (Tool == Tool.Line || Tool == Tool.Polyline)
                 {
-                    PenElement.Thickness = StrokeThickness;
-
-                    var p0 = new Point(X1, Y1);
-                    var p1 = new Point(X2, Y2);
-                    drawingContext.DrawLine(PenElement, p0, p1);
+                    DrawLine(drawingContext);
                 }
                 else if (Tool == Tool.Rect)
                 {
-                    PenShape.Thickness = StrokeThickness;
-
-                    var rect = GetShapeRect();
-
-                    drawingContext.DrawRectangle(enableFill == true ? BrushShape : null,
-                        PenShape,
-                        rect);
+                    DrawRect(drawingContext, enableFill);
                 }
                 else if (Tool == Tool.Circle)
                 {
-                    PenShape.Thickness = StrokeThickness;
-
-                    var rect = GetShapeRect();
-
-                    double radiusX = (rect.Right - rect.Left) / 2.0;
-                    double radiusY = (rect.Bottom - rect.Top) / 2.0;
-
-                    double centerX = rect.Left + radiusX;
-                    double centerY = rect.Top + radiusY;
-
-                    var center = new Point(centerX, centerY);
-
-                    drawingContext.DrawEllipse(enableFill == true ? BrushShape : null, 
-                        PenShape, 
-                        center, 
-                        radiusX, 
-                        radiusY);
+                    DrawCircle(drawingContext, enableFill);
                 }
             }
+        }
+
+        private void DrawGuides(DrawingContext drawingContext)
+        {
+            double x = X;
+            double y = Y;
+            double width = CanvasWidth;
+            double height = CanvasHeight;
+            double offsetX = 0.5;
+            double offsetY = -0.5;
+
+            if (x >= 0 && x <= width)
+            {
+                var verticalPoint0 = new Point(x + offsetX, 0);
+                var verticalPoint1 = new Point(x + offsetX, height);
+                drawingContext.DrawLine(PenGuides, verticalPoint0, verticalPoint1);
+            }
+
+            if (y >= 0 && y <= height)
+            {
+                var horizontalPoint0 = new Point(0, y + offsetY);
+                var horizontalPoint1 = new Point(width, y + offsetY);
+                drawingContext.DrawLine(PenGuides, horizontalPoint0, horizontalPoint1);
+            }
+        }
+
+        private void DrawLine(DrawingContext drawingContext)
+        {
+            PenElement.Thickness = StrokeThickness;
+
+            var p0 = new Point(X1, Y1);
+            var p1 = new Point(X2, Y2);
+
+            var geometry = new LineGeometry(p0, p1);
+            drawingContext.DrawGeometry(null, PenElement, geometry);
+
+            //drawingContext.DrawLine(PenElement, p0, p1);
+        }
+
+        private void DrawRect(DrawingContext drawingContext, bool enableFill)
+        {
+            PenShape.Thickness = StrokeThickness;
+
+            var rect = GetShapeRect();
+
+            var geometry = new RectangleGeometry(rect);
+            drawingContext.DrawGeometry(enableFill == true ? BrushShape : null,
+                PenShape, 
+                geometry);
+
+            //drawingContext.DrawRectangle(enableFill == true ? BrushShape : null,
+            //    PenShape,
+            //    rect);
+        }
+
+        private void DrawCircle(DrawingContext drawingContext, bool enableFill)
+        {
+            PenShape.Thickness = StrokeThickness;
+
+            var rect = GetShapeRect();
+
+            //double radiusX = (rect.Right - rect.Left) / 2.0;
+            //double radiusY = (rect.Bottom - rect.Top) / 2.0;
+
+            //double centerX = rect.Left + radiusX;
+            //double centerY = rect.Top + radiusY;
+
+            //var center = new Point(centerX, centerY);
+
+            var geometry = new EllipseGeometry(rect);
+            drawingContext.DrawGeometry(enableFill == true ? BrushShape : null,
+                PenShape,
+                geometry);
+
+            //drawingContext.DrawEllipse(enableFill == true ? BrushShape : null,
+            //    PenShape,
+            //    center,
+            //    radiusX,
+            //    radiusY);
         }
 
         private Rect GetShapeRect()
