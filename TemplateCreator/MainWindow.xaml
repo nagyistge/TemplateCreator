@@ -2,17 +2,19 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Template Creator" Height="950" Width="1500"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        SnapsToDevicePixels="True">
 
     <Window.Resources>
 
         <Style x:Key="GridPathStyleKey" TargetType="Path">
             <Setter Property="Stroke" Value="{DynamicResource LogicGridColorKey}"/>
             <Setter Property="Fill" Value="Transparent"/>
-            <Setter Property="StrokeThickness" Value="{DynamicResource PageStrokeThicknessKey}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="StrokeStartLineCap" Value="Flat"/>
             <Setter Property="StrokeEndLineCap" Value="Flat"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         </Style>
 
@@ -22,6 +24,46 @@
         <SolidColorBrush x:Key="LogicColorKey" Color="#FF000000"/>
         <SolidColorBrush x:Key="LogicSelectedColorKey" Color="DeepPink"/>
         <SolidColorBrush x:Key="LogicTransparentColorKey" Color="Transparent"/>
+
+        <ControlTemplate x:Key="ThumbEllipseKey" TargetType="Thumb">
+            <Ellipse Width="12" 
+                     Height="12"
+                     Margin="0,0,0,0"
+                     StrokeThickness="2.0">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="Fill" Value="{StaticResource LogicTemplateColorKey}"/>
+                        <Setter Property="Stroke" Value="{StaticResource LogicBackgroundColorKey}"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect BlurRadius="1" Color="Black" Direction="-90" Opacity="0.5" ShadowDepth="1"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsMouseOver}" Value="True">
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="ThumbTransparentKey" TargetType="Thumb">
+            <Grid Background="Transparent"/>
+        </ControlTemplate>
+
+        <!--
+        <Style x:Key="AdornerThumbStyleKey" TargetType="Thumb">
+            <Setter Property="Cursor" Value="Arrow"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="SizeAll"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        -->
 
     </Window.Resources>
 
@@ -157,6 +199,9 @@
 
             </Grid>
 
+            <Slider Margin="8" x:Name="Zoom" HorizontalAlignment="Stretch" Minimum="0.1" Maximum="20.1" Value="10" IsSnapToTickEnabled="True" TickFrequency="0.1" SmallChange="0.1" LargeChange="1" ValueChanged="Zoom_ValueChanged"/>
+            <TextBox HorizontalAlignment="Center" Width="60" Text="{Binding ElementName=Zoom, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
+            
         </StackPanel>
 
         <ScrollViewer Grid.Column="0" 
@@ -164,12 +209,12 @@
                       HorizontalScrollBarVisibility="Auto"
                       FocusVisualStyle="{x:Null}">
 
-            <Grid>
+            <Grid x:Name="grid">
 
                 <Canvas Width="1260" Height="891" Background="{StaticResource LogicBackgroundColorKey}"/>
 
                 <Canvas Width="1260" Height="891" Background="{DynamicResource LogicTransparentColorKey}">
-                    <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}"/>
+                    <Path x:Name="PathGrid" SnapsToDevicePixels="True" Style="{StaticResource GridPathStyleKey}"/>
                 </Canvas>
 
                 <Canvas x:Name="canvas" Width="1260" Height="891" Background="{DynamicResource LogicTransparentColorKey}">

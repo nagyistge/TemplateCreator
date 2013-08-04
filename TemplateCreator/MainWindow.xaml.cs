@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -38,10 +38,33 @@ namespace TemplateCreator
 
     #endregion
 
+    #region SnapUtil
+
+    public static class SnapUtil
+    {
+        #region Snap
+
+        public static double Snap(double original, double snap, double offset)
+        {
+            return Snap(original - offset, snap) + offset;
+        }
+
+        public static double Snap(double original, double snap)
+        {
+            return original + ((Math.Round(original / snap) - original / snap) * snap);
+        }
+
+        #endregion
+    } 
+
+    #endregion
+
     #region LineGuidesAdorner
 
     public class LineGuidesAdorner : Adorner
     {
+        public double gridStrokeThickness = 1.0;
+
         #region Properties
 
         public double CanvasWidth
@@ -178,23 +201,25 @@ namespace TemplateCreator
 
         #region Pens & Brushes
 
-        Brush BrushShape = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+        Brush BrushShape = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
 
-        Pen PenShape = new Pen(new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)), 5.0)
+        Brush TransparentBrushShape = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
+
+        Pen PenShape = new Pen(new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)), 5.0)
         {
             StartLineCap = PenLineCap.Flat,
             EndLineCap = PenLineCap.Flat,
             LineJoin = PenLineJoin.Miter
         };
 
-        Pen PenGuides = new Pen(new SolidColorBrush(Color.FromArgb(255, 0, 0, 255)), 1.0)
+        Pen PenGuides = new Pen(new SolidColorBrush(Color.FromArgb(255, 116, 116, 255)), 1.0)
         {
             StartLineCap = PenLineCap.Flat,
             EndLineCap = PenLineCap.Flat,
             LineJoin = PenLineJoin.Miter
         };
 
-        Pen PenElement = new Pen(new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)), 5.0)
+        Pen PenElement = new Pen(new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)), 5.0)
         {
             StartLineCap = PenLineCap.Square,
             EndLineCap = PenLineCap.Square,
@@ -217,6 +242,10 @@ namespace TemplateCreator
                 {
                     DrawLine(drawingContext);
                 }
+                else if (Tool == Tool.Path)
+                {
+                    DrawPath(drawingContext, enableFill);
+                }
                 else if (Tool == Tool.Rect)
                 {
                     DrawRect(drawingContext, enableFill);
@@ -234,21 +263,43 @@ namespace TemplateCreator
             double y = Y;
             double width = CanvasWidth;
             double height = CanvasHeight;
-            double offsetX = 0.5;
-            double offsetY = -0.5;
+            double offsetX = 0.0; //0.5;
+            double offsetY = 0.0; //-0.5;
 
             if (x >= 0 && x <= width)
             {
                 var verticalPoint0 = new Point(x + offsetX, 0);
                 var verticalPoint1 = new Point(x + offsetX, height);
+
+                double halfPenWidth = PenGuides.Thickness / 2.0;
+                GuidelineSet guidelines = new GuidelineSet();
+                guidelines.GuidelinesX.Add(verticalPoint0.X + halfPenWidth);
+                guidelines.GuidelinesX.Add(verticalPoint1.X + halfPenWidth);
+                guidelines.GuidelinesY.Add(verticalPoint0.Y + halfPenWidth);
+                guidelines.GuidelinesY.Add(verticalPoint1.Y + halfPenWidth);
+                drawingContext.PushGuidelineSet(guidelines);
+
                 drawingContext.DrawLine(PenGuides, verticalPoint0, verticalPoint1);
+
+                drawingContext.Pop();
             }
 
             if (y >= 0 && y <= height)
             {
                 var horizontalPoint0 = new Point(0, y + offsetY);
                 var horizontalPoint1 = new Point(width, y + offsetY);
+
+                double halfPenWidth = PenGuides.Thickness / 2.0;
+                GuidelineSet guidelines = new GuidelineSet();
+                guidelines.GuidelinesX.Add(horizontalPoint0.X + halfPenWidth);
+                guidelines.GuidelinesX.Add(horizontalPoint1.X + halfPenWidth);
+                guidelines.GuidelinesY.Add(horizontalPoint0.Y + halfPenWidth);
+                guidelines.GuidelinesY.Add(horizontalPoint1.Y + halfPenWidth);
+                drawingContext.PushGuidelineSet(guidelines);
+
                 drawingContext.DrawLine(PenGuides, horizontalPoint0, horizontalPoint1);
+
+                drawingContext.Pop();
             }
         }
 
@@ -260,9 +311,57 @@ namespace TemplateCreator
             var p1 = new Point(X2, Y2);
 
             var geometry = new LineGeometry(p0, p1);
+
+            double halfPenWidth = PenElement.Thickness / 2.0;
+            GuidelineSet guidelines = new GuidelineSet();
+            guidelines.GuidelinesX.Add(p0.X + halfPenWidth);
+            guidelines.GuidelinesX.Add(p1.X + halfPenWidth);
+            guidelines.GuidelinesY.Add(p0.Y + halfPenWidth);
+            guidelines.GuidelinesY.Add(p1.Y + halfPenWidth);
+            drawingContext.PushGuidelineSet(guidelines);
+
             drawingContext.DrawGeometry(null, PenElement, geometry);
 
-            //drawingContext.DrawLine(PenElement, p0, p1);
+            drawingContext.Pop();
+        }
+
+        private void DrawPath(DrawingContext drawingContext, bool enableFill)
+        {
+            PenShape.Thickness = StrokeThickness;
+
+            var rect = GetShapeRect();
+
+            var p0 = new Point(X1, Y1);
+            var p1 = new Point(X2, Y2);
+
+            var psc = new PathSegmentCollection();
+
+            //var lineSegment = new LineSegment(p1, false);
+            //psc.Add(lineSegment);
+
+            var arcSegment = new ArcSegment(p1, rect.Size, 0, false, SweepDirection.Clockwise, false);
+            psc.Add(arcSegment);
+
+            //var bezierSegment = new BezierSegment(...)
+
+            var pf = new PathFigure(p0, psc, true);
+            var pfc = new PathFigureCollection();
+            pfc.Add(pf);
+            var pg = new PathGeometry(pfc);
+
+            double halfPenWidth = PenShape.Thickness / 2.0;
+            GuidelineSet guidelines = new GuidelineSet();
+            guidelines.GuidelinesX.Add(rect.Left + halfPenWidth);
+            guidelines.GuidelinesX.Add(rect.Right + halfPenWidth);
+            guidelines.GuidelinesY.Add(rect.Top + halfPenWidth);
+            guidelines.GuidelinesY.Add(rect.Bottom + halfPenWidth);
+            drawingContext.PushGuidelineSet(guidelines);
+
+            drawingContext.DrawGeometry(enableFill == true ? BrushShape : TransparentBrushShape,
+                PenShape,
+                pg);
+
+            drawingContext.Pop();
         }
 
         private void DrawRect(DrawingContext drawingContext, bool enableFill)
@@ -272,13 +371,20 @@ namespace TemplateCreator
             var rect = GetShapeRect();
 
             var geometry = new RectangleGeometry(rect);
-            drawingContext.DrawGeometry(enableFill == true ? BrushShape : null,
+
+            double halfPenWidth = PenShape.Thickness / 2.0;
+            GuidelineSet guidelines = new GuidelineSet();
+            guidelines.GuidelinesX.Add(rect.Left + halfPenWidth);
+            guidelines.GuidelinesX.Add(rect.Right + halfPenWidth);
+            guidelines.GuidelinesY.Add(rect.Top + halfPenWidth);
+            guidelines.GuidelinesY.Add(rect.Bottom + halfPenWidth);
+            drawingContext.PushGuidelineSet(guidelines);
+
+            drawingContext.DrawGeometry(enableFill == true ? BrushShape : TransparentBrushShape,
                 PenShape, 
                 geometry);
 
-            //drawingContext.DrawRectangle(enableFill == true ? BrushShape : null,
-            //    PenShape,
-            //    rect);
+            drawingContext.Pop();
         }
 
         private void DrawCircle(DrawingContext drawingContext, bool enableFill)
@@ -287,29 +393,26 @@ namespace TemplateCreator
 
             var rect = GetShapeRect();
 
-            //double radiusX = (rect.Right - rect.Left) / 2.0;
-            //double radiusY = (rect.Bottom - rect.Top) / 2.0;
-
-            //double centerX = rect.Left + radiusX;
-            //double centerY = rect.Top + radiusY;
-
-            //var center = new Point(centerX, centerY);
-
             var geometry = new EllipseGeometry(rect);
-            drawingContext.DrawGeometry(enableFill == true ? BrushShape : null,
+
+            double halfPenWidth = PenShape.Thickness / 2.0;
+            GuidelineSet guidelines = new GuidelineSet();
+            guidelines.GuidelinesX.Add(rect.Left + halfPenWidth);
+            guidelines.GuidelinesX.Add(rect.Right + halfPenWidth);
+            guidelines.GuidelinesY.Add(rect.Top + halfPenWidth);
+            guidelines.GuidelinesY.Add(rect.Bottom + halfPenWidth);
+            drawingContext.PushGuidelineSet(guidelines);
+
+            drawingContext.DrawGeometry(enableFill == true ? BrushShape : TransparentBrushShape,
                 PenShape,
                 geometry);
 
-            //drawingContext.DrawEllipse(enableFill == true ? BrushShape : null,
-            //    PenShape,
-            //    center,
-            //    radiusX,
-            //    radiusY);
+            drawingContext.Pop();
         }
 
         private Rect GetShapeRect()
         {
-            double halfPenWidth = PenShape.Thickness / 2.0;
+            double halfPenWidth = (PenShape.Thickness - gridStrokeThickness) / 2.0;
 
             Point p0;
             Point p1;
@@ -321,7 +424,7 @@ namespace TemplateCreator
             return rect;
         }
 
-        private void GetShapePoints(double halfPenWidth, out Point p0, out Point p1)
+        public void GetShapePoints(double halfPenWidth, out Point p0, out Point p1)
         {
             double x1 = X1;
             double y1 = Y1;
@@ -346,6 +449,341 @@ namespace TemplateCreator
 
     #endregion
 
+    #region LineAdorner
+
+    public class LineAdorner : Adorner
+    {
+        #region Fields
+
+        private double size = 12;
+        private double strokeThickness = 0;
+        private Thumb thumb0 = null;
+        private Thumb thumb1 = null;
+        private VisualCollection visualCollection = null;
+
+        private bool EnableSnap = true;
+        private double SnapX = 15;
+        private double SnapY = 15;
+        private double SnapOffsetX = 0;
+        private double SnapOffsetY = 5;
+
+        #endregion
+
+        #region Constructor
+
+        public LineAdorner(UIElement adornedElement)
+            : base(adornedElement)
+        {
+            visualCollection = new VisualCollection(this);
+
+            thumb0 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeAll
+            };
+
+            thumb1 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeAll
+            };
+
+            thumb0.DragDelta += thumb0_DragDelta;
+            thumb1.DragDelta += thumb1_DragDelta;
+
+            visualCollection.Add(thumb0);
+            visualCollection.Add(thumb1);
+        }
+
+        void thumb0_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var line = this.AdornedElement as Line;
+
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+
+            double x = EnableSnap == true ? SnapUtil.Snap(line.X1 + dX, SnapX, SnapOffsetX) : line.X1 + dX;
+            double y = EnableSnap == true ? SnapUtil.Snap(line.Y1 + dY, SnapY, SnapOffsetY) : line.Y1 + dY;
+
+            line.X1 = x;
+            line.Y1 = y;
+        }
+
+        void thumb1_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var line = this.AdornedElement as Line;
+
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+
+            double x = EnableSnap == true ? SnapUtil.Snap(line.X2 + dX, SnapX, SnapOffsetX) : line.X2 + dX;
+            double y = EnableSnap == true ? SnapUtil.Snap(line.Y2 + dY, SnapY, SnapOffsetY) : line.Y2 + dY;
+
+            line.X2 = x;
+            line.Y2 = y;
+        }
+
+        protected override Visual GetVisualChild(int index)
+        {
+            return visualCollection[index];
+        }
+
+        protected override int VisualChildrenCount
+        {
+            get
+            {
+                return visualCollection.Count;
+            }
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var line = this.AdornedElement as Line;
+
+            double offset = (size + strokeThickness) / 2;
+
+            thumb0.Arrange(new Rect(line.X1 - offset, line.Y1 - offset, size, size));
+            thumb1.Arrange(new Rect(line.X2 - offset, line.Y2 - offset, size, size));
+
+            return finalSize;
+        }
+
+        #endregion
+    } 
+
+    #endregion
+
+    #region RectAdorner
+
+    public class RectAdorner : Adorner
+    {
+        #region Fields
+
+        private double size = 12;
+        //private double strokeThickness = 2;
+        private Thumb thumb0 = null;
+        private Thumb thumb1 = null;
+        private Thumb thumb2 = null;
+        private Thumb thumb3 = null;
+        private Thumb thumb4 = null;
+        private VisualCollection visualCollection = null;
+
+        private bool EnableSnap = true;
+        private double SnapX = 15;
+        private double SnapY = 15;
+        private double SnapOffsetX = -0.5;
+        private double SnapOffsetY = 4.5;
+
+        private double SnapOffsetWidth = 1.0;
+        private double SnapOffsetHeight = 1.0;
+
+        #endregion
+
+        #region Constructor
+
+        public RectAdorner(UIElement adornedElement)
+            : base(adornedElement)
+        {
+            visualCollection = new VisualCollection(this);
+
+            thumb0 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeNWSE
+            };
+
+            thumb1 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeNESW
+            };
+
+            thumb2 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeNESW
+            };
+
+            thumb3 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeNWSE
+            };
+
+            thumb4 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbTransparentKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeAll
+            };
+
+            thumb0.DragDelta += thumb0_DragDelta;
+            thumb1.DragDelta += thumb1_DragDelta;
+            thumb2.DragDelta += thumb2_DragDelta;
+            thumb3.DragDelta += thumb3_DragDelta;
+            thumb4.DragDelta += thumb4_DragDelta;
+
+            visualCollection.Add(thumb4);
+
+            visualCollection.Add(thumb0);
+            visualCollection.Add(thumb1);
+            visualCollection.Add(thumb2);
+            visualCollection.Add(thumb3);
+        }
+
+        void thumb0_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var rect = this.AdornedElement as Rectangle;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double x = Canvas.GetLeft(rect);
+            double y = Canvas.GetTop(rect);
+            double width = rect.Width;
+            double height = rect.Height;
+
+            width = Math.Max(0, width - dX);
+            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            height = Math.Max(0, height - dY);
+            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
+            y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
+
+            if (width > 0)
+                Canvas.SetLeft(rect, x);
+
+            if (height > 0)
+                Canvas.SetTop(rect, y);
+
+            rect.Width = width;
+            rect.Height = height;
+        }
+
+        void thumb1_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var rect = this.AdornedElement as Rectangle;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double y = Canvas.GetTop(rect);
+            double width = rect.Width;
+            double height = rect.Height;
+
+            width = Math.Max(0, width + dX);
+            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            height = Math.Max(0, height - dY);
+            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
+
+            if (height > 0)
+                Canvas.SetTop(rect, y);
+
+            rect.Width = width;
+            rect.Height = height;
+        }
+
+        void thumb2_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var rect = this.AdornedElement as Rectangle;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double x = Canvas.GetLeft(rect);
+            double width = rect.Width;
+            double height = rect.Height;
+
+            width = Math.Max(0, width - dX);
+            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            height = Math.Max(0, height + dY);
+            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
+
+            if (width > 0)
+                Canvas.SetLeft(rect, x);
+
+            rect.Width = width;
+            rect.Height = height;
+        }
+
+        void thumb3_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var rect = this.AdornedElement as Rectangle;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double width = rect.Width;
+            double height = rect.Height;
+
+            width = Math.Max(0, width + dX);
+            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            height = Math.Max(0, height + dY);
+            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            rect.Width = width;
+            rect.Height = height;
+        }
+
+        void thumb4_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var rect = this.AdornedElement as Rectangle;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double x = Canvas.GetLeft(rect);
+            double y = Canvas.GetTop(rect);
+
+            x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
+            y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
+
+            Canvas.SetLeft(rect, x);
+            Canvas.SetTop(rect, y);
+        }
+
+        protected override Visual GetVisualChild(int index)
+        {
+            return visualCollection[index];
+        }
+
+        protected override int VisualChildrenCount
+        {
+            get
+            {
+                return visualCollection.Count;
+            }
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var rect = this.AdornedElement as Rectangle;
+
+            double x = 0;
+            double y = 0;
+            double width = rect.Width;
+            double height = rect.Height;
+            double offset = size / 2;
+
+            thumb0.Arrange(new Rect(x - offset, y - offset, size, size));
+            thumb1.Arrange(new Rect(x + width - offset, y - offset, size, size));
+            thumb2.Arrange(new Rect(x - offset, y + height - offset, size, size));
+            thumb3.Arrange(new Rect(x + width - offset, y + height - offset, size, size));
+            thumb4.Arrange(new Rect(x, y, width, height));
+
+            return finalSize;
+        }
+
+        #endregion
+    }
+
+    #endregion
+
     #region MainWindow
 
     public partial class MainWindow : Window
@@ -357,9 +795,9 @@ namespace TemplateCreator
         private bool snapWhenCreating = true;
         private bool snapWhenMoving = true;
 
-        private bool enableFill = true;
+        private bool enableFill = false;
 
-        private double strokeThickness = 5.0;
+        private double strokeThickness = 1.0;
 
         private Tool tool = Tool.Line;
 
@@ -369,6 +807,9 @@ namespace TemplateCreator
         private double snapY = 15;
         private double snapOffsetX = 0;
         private double snapOffsetY = 5;
+
+        private double gridOffsetX = 0;
+        private double gridOffsetY = 5;
 
         private Stack<string> undo = new Stack<string>();
         private Stack<string> redo = new Stack<string>();
@@ -390,7 +831,7 @@ namespace TemplateCreator
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
 
             //GridGenerate(PathGrid, 330, 35, 600, 750, 30);
-            GridGenerate(PathGrid, 0, snapOffsetY, 1260, 891 - snapOffsetY - 16, 30);
+            GridGenerate(PathGrid, gridOffsetX, gridOffsetY, 1260, 891 - gridOffsetY - 16, 30);
         }
 
         #endregion
@@ -407,15 +848,15 @@ namespace TemplateCreator
             // horizontal lines
             for (double y = sizeY + originY; y < height + originY; y += size)
             {
-                sb.AppendFormat("M{0},{1}", originX, y);
-                sb.AppendFormat("L{0},{1}", width + originX, y);
+                sb.AppendFormat("M{0},{1}", DoubleToString(originX), DoubleToString(y));
+                sb.AppendFormat("L{0},{1}", DoubleToString(width + originX), DoubleToString(y));
             }
 
             // vertical lines
             for (double x = sizeX + originX; x < width + originX; x += size)
             {
-                sb.AppendFormat("M{0},{1}", x, originY);
-                sb.AppendFormat("L{0},{1}", x, height + originY);
+                sb.AppendFormat("M{0},{1}", DoubleToString(x), DoubleToString(originY));
+                sb.AppendFormat("L{0},{1}", DoubleToString(x), DoubleToString(height + originY));
             }
 
             return sb.ToString();
@@ -662,8 +1103,8 @@ namespace TemplateCreator
             {
                 var p = e.GetPosition(canvas);
 
-                double x = (snapWhenCreating == true && snapWhenMoving == true) ? Snap(p.X, snapX, snapOffsetX) : p.X;
-                double y = (snapWhenCreating == true && snapWhenMoving == true) ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
+                double x = (snapWhenCreating == true && snapWhenMoving == true) ? SnapUtil.Snap(p.X, snapX, snapOffsetX) : p.X;
+                double y = (snapWhenCreating == true && snapWhenMoving == true) ? SnapUtil.Snap(p.Y, snapY, snapOffsetY) : p.Y;
 
                 UpdateTitle(adorner.X1, adorner.Y1, x, y);
 
@@ -683,8 +1124,8 @@ namespace TemplateCreator
             {
                 var p = e.GetPosition(canvas);
 
-                double x = snapWhenCreating == true ? Snap(p.X, snapX, snapOffsetX) : p.X;
-                double y = snapWhenCreating == true ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
+                double x = snapWhenCreating == true ? SnapUtil.Snap(p.X, snapX, snapOffsetX) : p.X;
+                double y = snapWhenCreating == true ? SnapUtil.Snap(p.Y, snapY, snapOffsetY) : p.Y;
 
                 UpdateTitle(x, y, x, y);
             }
@@ -701,8 +1142,8 @@ namespace TemplateCreator
 
                 PushModel();
 
-                double x = snapWhenCreating == true ? Snap(p.X, snapX, snapOffsetX) : p.X;
-                double y = snapWhenCreating == true ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
+                double x = snapWhenCreating == true ? SnapUtil.Snap(p.X, snapX, snapOffsetX) : p.X;
+                double y = snapWhenCreating == true ? SnapUtil.Snap(p.Y, snapY, snapOffsetY) : p.Y;
 
                 if (tool == Tool.Line || 
                     tool == Tool.Polyline ||
@@ -712,21 +1153,39 @@ namespace TemplateCreator
                     {
                         var line = CreateLine(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         canvas.Children.Add(line);
+                        //AddLineAdorner(line);
                     }
                 }
                 else if (tool == Tool.Rect)
                 {
                     if (((adorner.X1 == adorner.X2) || (adorner.Y1 == adorner.Y2)) == false)
                     {
-                        var rect = CreateRect(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
+                        var p0 = new Point(adorner.X1, adorner.Y1); 
+                        var p1 = new Point(x, y);
+                        var r = new Rect(p0, p1);
+                        r.Offset(-0.5, -0.5);
+                        r.Width = r.Width + 1.0;
+                        r.Height = r.Height + 1.0;
+
+                        //var rect = CreateRect(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
+                        var rect = CreateRect(r.Left, r.Top, r.Right, r.Bottom, enableFill, strokeThickness);
                         canvas.Children.Add(rect);
+                        //AddRectAdorner(rect);
                     }
                 }
                 else if (tool == Tool.Circle)
                 {
                     if (((adorner.X1 == adorner.X2) || (adorner.Y1 == adorner.Y2)) == false)
                     {
-                        var circle = CreateCircle(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
+                        var p0 = new Point(adorner.X1, adorner.Y1);
+                        var p1 = new Point(x, y);
+                        var r = new Rect(p0, p1);
+                        r.Offset(-0.5, -0.5);
+                        r.Width = r.Width + 1.0;
+                        r.Height = r.Height + 1.0;
+
+                        //var circle = CreateCircle(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
+                        var circle = CreateCircle(r.Left, r.Top, r.Right, r.Bottom, enableFill, strokeThickness);
                         canvas.Children.Add(circle);
                     }
                 }
@@ -763,8 +1222,8 @@ namespace TemplateCreator
                         canvas.Children.Remove(OriginaLine);
 
                         var p = e.GetPosition(canvas);
-                        double x0 = snapWhenCreating == true ? Snap(p.X, snapX, snapOffsetX) : p.X;
-                        double y0 = snapWhenCreating == true ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
+                        double x0 = snapWhenCreating == true ? SnapUtil.Snap(p.X, snapX, snapOffsetX) : p.X;
+                        double y0 = snapWhenCreating == true ? SnapUtil.Snap(p.Y, snapY, snapOffsetY) : p.Y;
 
                         double x1 = OriginaLine.X1;
                         double y1 = OriginaLine.Y1;
@@ -790,8 +1249,8 @@ namespace TemplateCreator
                 else
                 {
                     var p = e.GetPosition(canvas);
-                    double x = snapWhenCreating == true ? Snap(p.X, snapX, snapOffsetX) : p.X;
-                    double y = snapWhenCreating == true ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
+                    double x = snapWhenCreating == true ? SnapUtil.Snap(p.X, snapX, snapOffsetX) : p.X;
+                    double y = snapWhenCreating == true ? SnapUtil.Snap(p.Y, snapY, snapOffsetY) : p.Y;
 
                     AddAdorner(x, y, x, y, tool);
 
@@ -825,8 +1284,9 @@ namespace TemplateCreator
             var adornerLayer = AdornerLayer.GetAdornerLayer(canvas);
             adorner = new LineGuidesAdorner(canvas);
 
-            RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
-
+            //RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
+            adorner.SnapsToDevicePixels = true;
+    
             adorner.StrokeThickness = strokeThickness;
             adorner.EnableFill = enableFill;
             adorner.Tool = tool;
@@ -840,10 +1300,6 @@ namespace TemplateCreator
             adorner.Y2 = y2;
 
             adornerLayer.Add(adorner);
-
-            //var setZOrderMethodInfo = adornerLayer.GetType().GetMethod("SetAdornerZOrder", 
-            //    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            //setZOrderMethodInfo.Invoke(adornerLayer, new object[] { adorner, 5 });
         }
 
         private void RemoveAdorner()
@@ -853,18 +1309,24 @@ namespace TemplateCreator
             adorner = null;
         }
 
-        #endregion
-
-        #region Snap
-
-        public double Snap(double original, double snap, double offset)
+        private void AddLineAdorner(Line line)
         {
-            return Snap(original - offset, snap) + offset;
+            var adornerLayer = AdornerLayer.GetAdornerLayer(line);
+            var adorner = new LineAdorner(line);
+
+            //RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
+
+            adornerLayer.Add(adorner);
         }
 
-        public double Snap(double original, double snap)
+        private void AddRectAdorner(Rectangle rect)
         {
-            return original + ((Math.Round(original / snap) - original / snap) * snap);
+            var adornerLayer = AdornerLayer.GetAdornerLayer(rect);
+            var adorner = new RectAdorner(rect);
+
+            //RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
+
+            adornerLayer.Add(adorner);
         }
 
         #endregion
@@ -875,18 +1337,18 @@ namespace TemplateCreator
         {
             var line = new Line()
             {
-                Stroke = Brushes.Red,
+                Stroke = Brushes.Black,
                 StrokeThickness = strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
                 StrokeStartLineCap = PenLineCap.Square,
                 StrokeEndLineCap = PenLineCap.Square,
-                Fill = Brushes.Transparent,
-                SnapsToDevicePixels = false
+                Fill = Brushes.Transparent
             };
 
             Panel.SetZIndex(line, 3);
 
-            RenderOptions.SetEdgeMode(line, EdgeMode.Aliased);
+            //RenderOptions.SetEdgeMode(line, EdgeMode.Aliased);
+            line.SnapsToDevicePixels = true;
 
             line.X1 = x1;
             line.Y1 = y1;
@@ -904,19 +1366,19 @@ namespace TemplateCreator
         {
             var rect = new Rectangle()
             {
-                Stroke = Brushes.Red,
+                Stroke = Brushes.Black,
                 StrokeThickness = enableFill == true ? 0.0 : strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
                 StrokeStartLineCap = PenLineCap.Square,
                 StrokeEndLineCap = PenLineCap.Square,
-                Fill = enableFill == true ? Brushes.Red : Brushes.Transparent,
-                SnapsToDevicePixels = false,
-                ClipToBounds = false
+                Fill = enableFill == true ? Brushes.Black : Brushes.Transparent,
             };
 
             Panel.SetZIndex(rect, 3);
 
-            RenderOptions.SetEdgeMode(rect, EdgeMode.Aliased);
+            //RenderOptions.SetEdgeMode(rect, EdgeMode.Aliased);
+
+            rect.SnapsToDevicePixels = true;
 
             var p0 = new Point(x1, y1);
             var p1 = new Point(x2, y2);
@@ -939,18 +1401,19 @@ namespace TemplateCreator
         {
             var ellipse = new Ellipse()
             {
-                Stroke = Brushes.Red,
+                Stroke = Brushes.Black,
                 StrokeThickness = enableFill == true ? 0.0 : strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
                 StrokeStartLineCap = PenLineCap.Square,
                 StrokeEndLineCap = PenLineCap.Square,
-                Fill = enableFill == true ? Brushes.Red : Brushes.Transparent,
-                SnapsToDevicePixels = false
+                Fill = enableFill == true ? Brushes.Black : Brushes.Transparent
             };
 
             Panel.SetZIndex(ellipse, 3);
 
-            RenderOptions.SetEdgeMode(ellipse, EdgeMode.Aliased);
+            //RenderOptions.SetEdgeMode(ellipse, EdgeMode.Aliased);
+
+            ellipse.SnapsToDevicePixels = true;
 
             var p0 = new Point(x1, y1);
             var p1 = new Point(x2, y2);
@@ -969,7 +1432,7 @@ namespace TemplateCreator
 
         #region Model
 
-        private string DoubleToString(double value)
+        private static string DoubleToString(double value)
         {
             return value.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
         }
@@ -992,12 +1455,12 @@ namespace TemplateCreator
 
                     sb.AppendFormat("{0};{1};{2};{3};{4};{5};{6}{7}",
                         "line",
-                        DoubleToString(x1),
-                        DoubleToString(y1),
-                        DoubleToString(x2),
-                        DoubleToString(y2),
+                        x1,
+                        y1,
+                        x2,
+                        y2,
                         line.Fill == Brushes.Transparent ? "0" : "1",
-                        DoubleToString(line.StrokeThickness),
+                        line.StrokeThickness,
                         Environment.NewLine);
                 }
                 else if (child is Rectangle)
@@ -1011,12 +1474,12 @@ namespace TemplateCreator
 
                     sb.AppendFormat("{0};{1};{2};{3};{4};{5};{6}{7}",
                         "rect",
-                        DoubleToString(x1),
-                        DoubleToString(y1),
-                        DoubleToString(x2),
-                        DoubleToString(y2),
+                        x1,
+                        y1,
+                        x2,
+                        y2,
                         rect.Fill == Brushes.Transparent ? "0" : "1",
-                        DoubleToString(rect.StrokeThickness),
+                        rect.StrokeThickness,
                         Environment.NewLine);
                 }
                 else if (child is Ellipse)
@@ -1030,12 +1493,12 @@ namespace TemplateCreator
                     
                     sb.AppendFormat("{0};{1};{2};{3};{4};{5};{6}{7}",
                         "circle",
-                        DoubleToString(x1),
-                        DoubleToString(y1),
-                        DoubleToString(x2),
-                        DoubleToString(y2),
+                        x1,
+                        y1,
+                        x2,
+                        y2,
                         circle.Fill == Brushes.Transparent ? "0" : "1",
-                        DoubleToString(circle.StrokeThickness),
+                        circle.StrokeThickness,
                         Environment.NewLine);
                 }
             }
@@ -1165,6 +1628,38 @@ namespace TemplateCreator
                 }
             }
         }
+
+        #endregion
+
+        #region Zoom Slider
+
+        private void Zoom_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (this.IsLoaded)
+            {
+                var x = this.Zoom.Value;
+
+                double middle = 10;
+                double y = 0;
+
+                // x <= middle => y = x/middle
+                if (x <= middle)
+                {
+                    y = x / middle;
+                }
+                // x > middle => y = x - (middle - 1)
+                else if (x > middle)
+                {
+                    y = x - (middle - 1);
+                }
+
+                var m = new Matrix();
+                m.Scale(y, y);
+                var mt = new MatrixTransform(m);
+
+                grid.LayoutTransform = mt;
+            }
+        } 
 
         #endregion
     }
