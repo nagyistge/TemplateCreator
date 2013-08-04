@@ -1062,6 +1062,11 @@ namespace TemplateCreator
 
             //GridGenerate(PathGrid, 330, 35, 600, 750, 30);
             GridGenerate(PathGrid, gridOffsetX, gridOffsetY, 1260, 891 - gridOffsetY - 16, 30);
+
+            TextSnapX.Text = snapX.ToString();
+            TextSnapY.Text = snapY.ToString();
+            TextSnapOffsetX.Text = snapOffsetX.ToString();
+            TextSnapOffsetY.Text = snapOffsetY.ToString();
         }
 
         #endregion
@@ -1965,6 +1970,62 @@ namespace TemplateCreator
                 var mt = new MatrixTransform(m);
 
                 grid.LayoutTransform = mt;
+            }
+        } 
+
+        #endregion
+
+        #region Text Events
+
+        private void TextSnapX_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded == false)
+                return;
+
+            double value;
+
+            if (double.TryParse(TextSnapX.Text, out value))
+            {
+                snapX = value;
+            }
+        }
+
+        private void TextSnapY_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded == false)
+                return;
+
+            double value;
+
+            if (double.TryParse(TextSnapY.Text, out value))
+            {
+                snapY = value;
+            }
+        }
+
+        private void TextSnapOffsetX_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded == false)
+                return;
+
+            double value;
+
+            if (double.TryParse(TextSnapOffsetX.Text, out value))
+            {
+                snapOffsetX = value;
+            }
+        }
+
+        private void TextSnapOffsetY_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded == false)
+                return;
+
+            double value;
+
+            if (double.TryParse(TextSnapOffsetY.Text, out value))
+            {
+                snapOffsetY = value;
             }
         } 
 

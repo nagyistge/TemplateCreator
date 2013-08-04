@@ -74,138 +74,174 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="1"
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Right">
+        <ScrollViewer Grid.Column="1" 
+                      VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Auto"
+                      FocusVisualStyle="{x:Null}">
 
-            <Grid x:Name="DrawShortcuts" Margin="8" HorizontalAlignment="Right">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+            <StackPanel Grid.Column="1"
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Right">
 
-                <TextBlock Text="DRAW" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
-                
-                <TextBlock Text="line" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
-                <TextBlock Text="polyline" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
-                <TextBlock Text="path" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
-                <TextBlock Text="rect" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
-                <TextBlock Text="circle" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
-                <TextBlock Text="text" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6"/>
+                <Grid x:Name="DrawShortcuts" Margin="8" HorizontalAlignment="Right">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
 
-                <TextBlock Text="l" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
-                <TextBlock Text="p" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
-                <TextBlock Text="a" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
-                <TextBlock Text="r" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
-                <TextBlock Text="c" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
-                <TextBlock Text="t" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="6"/>
-                
-            </Grid>
+                    <TextBlock Text="DRAW" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
 
-            <Grid x:Name="AdjustShortcuts" Margin="8" HorizontalAlignment="Right">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+                    <TextBlock Text="line" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="polyline" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="path" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                    <TextBlock Text="rect" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                    <TextBlock Text="circle" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
+                    <TextBlock Text="text" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6"/>
 
-                <TextBlock Text="ADJUST" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+                    <TextBlock Text="l" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                    <TextBlock Text="p" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                    <TextBlock Text="a" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                    <TextBlock Text="r" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+                    <TextBlock Text="c" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
+                    <TextBlock Text="t" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="6"/>
 
-                <TextBlock Text="move" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
-                <TextBlock Text="scale" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
-                <TextBlock Text="rotate" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
-                <TextBlock Text="deuplicate" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                </Grid>
 
-                <TextBlock Text="v" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
-                <TextBlock Text="s" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
-                <TextBlock Text="e" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
-                <TextBlock Text="d" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+                <Grid x:Name="AdjustShortcuts" Margin="8" HorizontalAlignment="Right">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
 
-            </Grid>
+                    <TextBlock Text="ADJUST" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
 
-            <Grid x:Name="OptionsShortcuts" Margin="8" HorizontalAlignment="Right">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+                    <TextBlock Text="move" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="scale" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="rotate" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                    <TextBlock Text="deuplicate" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
 
-                <TextBlock Text="OPTIONS" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+                    <TextBlock Text="v" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                    <TextBlock Text="s" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                    <TextBlock Text="e" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                    <TextBlock Text="d" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
 
-                <TextBlock Text="snap" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
-                <TextBlock Text="fill" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
-                <TextBlock Text="inc stroke" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
-                <TextBlock Text="dec stroke" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
-                <TextBlock Text="adorners" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
-                
-                <TextBlock Text="m" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
-                <TextBlock Text="f" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
-                <TextBlock Text="+" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
-                <TextBlock Text="-" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
-                <TextBlock Text="h" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
-                
-            </Grid>
+                </Grid>
 
-            <Grid x:Name="ModelShortcuts" Margin="8" HorizontalAlignment="Right">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+                <Grid x:Name="OptionsShortcuts" Margin="8" HorizontalAlignment="Right">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
 
-                <TextBlock Text="MODEL" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
-                
-                <TextBlock Text="undo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
-                <TextBlock Text="redo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
-                <TextBlock Text="open" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
-                <TextBlock Text="save" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
-                <TextBlock Text="reset" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
+                    <TextBlock Text="OPTIONS" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
 
-                <TextBlock Text="ctrl+z" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
-                <TextBlock Text="ctrl+y" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
-                <TextBlock Text="ctrl+o" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
-                <TextBlock Text="ctrl+s" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
-                <TextBlock Text="ctrl+r" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
+                    <TextBlock Text="snap" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="fill" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="inc stroke" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                    <TextBlock Text="dec stroke" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                    <TextBlock Text="adorners" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
 
-            </Grid>
+                    <TextBlock Text="m" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                    <TextBlock Text="f" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                    <TextBlock Text="+" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                    <TextBlock Text="-" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+                    <TextBlock Text="h" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
 
-            <Slider Margin="8" x:Name="Zoom" HorizontalAlignment="Stretch" Minimum="0.1" Maximum="20.1" Value="10" IsSnapToTickEnabled="True" TickFrequency="0.1" SmallChange="0.1" LargeChange="1" ValueChanged="Zoom_ValueChanged"/>
-            <TextBox HorizontalAlignment="Center" Width="60" Text="{Binding ElementName=Zoom, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
-            
-        </StackPanel>
+                </Grid>
+
+                <Grid x:Name="ModelShortcuts" Margin="8" HorizontalAlignment="Right">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="MODEL" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+
+                    <TextBlock Text="undo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="redo" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="open" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                    <TextBlock Text="save" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                    <TextBlock Text="reset" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5"/>
+
+                    <TextBlock Text="ctrl+z" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1"/>
+                    <TextBlock Text="ctrl+y" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
+                    <TextBlock Text="ctrl+o" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="3"/>
+                    <TextBlock Text="ctrl+s" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="4"/>
+                    <TextBlock Text="ctrl+r" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="2" Grid.Row="5"/>
+
+                </Grid>
+
+                <Slider Margin="8" x:Name="Zoom" HorizontalAlignment="Stretch" Minimum="0.1" Maximum="20.1" Value="10" IsSnapToTickEnabled="True" TickFrequency="0.1" SmallChange="0.1" LargeChange="1" ValueChanged="Zoom_ValueChanged"/>
+                <TextBox HorizontalAlignment="Center" Width="60" Text="{Binding ElementName=Zoom, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" BorderBrush="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"/>
+
+                <Grid x:Name="SnapOptions" Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="snap" TextDecorations="Underline" FontWeight="SemiBold" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"/>
+
+                    <TextBlock Text="x:" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" Text="0" TextAlignment="Center" BorderBrush="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"  x:Name="TextSnapX" TextChanged="TextSnapX_TextChanged"/>
+
+                    <TextBlock Text="y:" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2"/>
+                    <TextBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Text="0" TextAlignment="Center" BorderBrush="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"  x:Name="TextSnapY" TextChanged="TextSnapY_TextChanged"/>
+
+                    <TextBlock Text="offset x:" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3"/>
+                    <TextBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" Text="0" TextAlignment="Center" BorderBrush="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"  x:Name="TextSnapOffsetX" TextChanged="TextSnapOffsetX_TextChanged"/>
+
+                    <TextBlock Text="offset y:" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4"/>
+                    <TextBox Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" Text="0" TextAlignment="Center" BorderBrush="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}"  x:Name="TextSnapOffsetY" TextChanged="TextSnapOffsetY_TextChanged"/>
+
+                </Grid>
+
+            </StackPanel>
+
+        </ScrollViewer>
 
         <ScrollViewer Grid.Column="0" 
                       VerticalScrollBarVisibility="Auto" 
