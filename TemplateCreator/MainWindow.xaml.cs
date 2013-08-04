@@ -158,7 +158,7 @@ namespace TemplateCreator
 
         Brush BrushRect = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
 
-        Pen PenRect = new Pen(new SolidColorBrush(Color.FromArgb(255, 0, 0, 255)), 0.0)
+        Pen PenRect = new Pen(new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)), 0.0)
         {
             StartLineCap = PenLineCap.Flat,
             EndLineCap = PenLineCap.Flat,
