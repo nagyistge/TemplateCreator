@@ -143,6 +143,28 @@ namespace TemplateCreator
                 new FrameworkPropertyMetadata(Tool.None,
                     FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
+        public bool EnableFill
+        {
+            get { return (bool)GetValue(EnableFillProperty); }
+            set { SetValue(EnableFillProperty, value); }
+        }
+
+        public static readonly DependencyProperty EnableFillProperty =
+            DependencyProperty.Register("EnableFill", typeof(bool), typeof(LineGuidesAdorner),
+                new FrameworkPropertyMetadata(true,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public double StrokeThickness
+        {
+            get { return (double)GetValue(StrokeThicknessProperty); }
+            set { SetValue(StrokeThicknessProperty, value); }
+        }
+
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(LineGuidesAdorner),
+                new FrameworkPropertyMetadata(5.0,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
         #endregion
 
         #region Constructor
@@ -156,9 +178,9 @@ namespace TemplateCreator
 
         #region Pens & Brushes
 
-        Brush BrushRect = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+        Brush BrushShape = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
 
-        Pen PenRect = new Pen(new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)), 0.0)
+        Pen PenShape = new Pen(new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)), 5.0)
         {
             StartLineCap = PenLineCap.Flat,
             EndLineCap = PenLineCap.Flat,
@@ -194,6 +216,8 @@ namespace TemplateCreator
                 double offsetX = 0.5;
                 double offsetY = -0.5;
 
+                bool enableFill = EnableFill;
+
                 if (x >= 0 && x <= width)
                 {
                     var verticalPoint0 = new Point(x + offsetX, 0);
@@ -210,23 +234,27 @@ namespace TemplateCreator
 
                 if (Tool == Tool.Line || Tool == Tool.Polyline)
                 {
+                    PenElement.Thickness = StrokeThickness;
+
                     var p0 = new Point(X1, Y1);
                     var p1 = new Point(X2, Y2);
                     drawingContext.DrawLine(PenElement, p0, p1);
                 }
                 else if (Tool == Tool.Rect)
                 {
-                    var p0 = new Point(X1, Y1);
-                    var p1 = new Point(X2, Y2);
-                    var rect = new Rect(p0, p1);
+                    PenShape.Thickness = StrokeThickness;
 
-                    drawingContext.DrawRectangle(BrushRect, PenRect, rect);
+                    var rect = GetShapeRect();
+
+                    drawingContext.DrawRectangle(enableFill == true ? BrushShape : null,
+                        PenShape,
+                        rect);
                 }
                 else if (Tool == Tool.Circle)
                 {
-                    var p0 = new Point(X1, Y1);
-                    var p1 = new Point(X2, Y2);
-                    var rect = new Rect(p0, p1);
+                    PenShape.Thickness = StrokeThickness;
+
+                    var rect = GetShapeRect();
 
                     double radiusX = (rect.Right - rect.Left) / 2.0;
                     double radiusY = (rect.Bottom - rect.Top) / 2.0;
@@ -236,9 +264,47 @@ namespace TemplateCreator
 
                     var center = new Point(centerX, centerY);
 
-                    drawingContext.DrawEllipse(BrushRect, PenRect, center, radiusX, radiusY);
+                    drawingContext.DrawEllipse(enableFill == true ? BrushShape : null, 
+                        PenShape, 
+                        center, 
+                        radiusX, 
+                        radiusY);
                 }
             }
+        }
+
+        private Rect GetShapeRect()
+        {
+            double halfPenWidth = PenShape.Thickness / 2.0;
+
+            Point p0;
+            Point p1;
+
+            GetShapePoints(halfPenWidth, out p0, out p1);
+
+            var rect = new Rect(p0, p1);
+
+            return rect;
+        }
+
+        private void GetShapePoints(double halfPenWidth, out Point p0, out Point p1)
+        {
+            double x1 = X1;
+            double y1 = Y1;
+            double x2 = X2;
+            double y2 = Y2;
+
+            p0 = new Point
+            (
+                (x1 > x2) ? (x1 - halfPenWidth) : (x1 < x2) ? (x1 + halfPenWidth) : x1,
+                (y1 > y2) ? (y1 - halfPenWidth) : (y1 < y2) ? (y1 + halfPenWidth) : y1
+            );
+
+            p1 = new Point
+            (
+                (x2 > x1) ? (x2 - halfPenWidth) : (x2 < x1) ? (x2 + halfPenWidth) : x2,
+                (y2 > y1) ? (y2 - halfPenWidth) : (y2 < y1) ? (y2 + halfPenWidth) : y2
+            );
         }
 
         #endregion
@@ -256,6 +322,10 @@ namespace TemplateCreator
 
         private bool snapWhenCreating = true;
         private bool snapWhenMoving = true;
+
+        private bool enableFill = true;
+
+        private double strokeThickness = 5.0;
 
         private Tool tool = Tool.Line;
 
@@ -391,6 +461,8 @@ namespace TemplateCreator
                     case Key.L:
                         {
                             tool = Tool.Line;
+                            if (adorner != null)
+                                adorner.Tool = tool;
                         }
                         break;
 
@@ -398,6 +470,17 @@ namespace TemplateCreator
                     case Key.P:
                         {
                             tool = Tool.Polyline;
+                            if (adorner != null)
+                                adorner.Tool = tool;
+                        }
+                        break;
+
+                    // path
+                    case Key.A:
+                        {
+                            tool = Tool.Path;
+                            if (adorner != null)
+                                adorner.Tool = tool;
                         }
                         break;
 
@@ -405,6 +488,8 @@ namespace TemplateCreator
                     case Key.R:
                         {
                             tool = Tool.Rect;
+                            if (adorner != null)
+                                adorner.Tool = tool;
                         }
                         break;
 
@@ -412,6 +497,8 @@ namespace TemplateCreator
                     case Key.C:
                         {
                             tool = Tool.Circle;
+                            if (adorner != null)
+                                adorner.Tool = tool;
                         }
                         break;
 
@@ -419,6 +506,8 @@ namespace TemplateCreator
                     case Key.T:
                         {
                             tool = Tool.Text;
+                            if (adorner != null)
+                                adorner.Tool = tool;
                         }
                         break;
 
@@ -454,6 +543,41 @@ namespace TemplateCreator
                     case Key.M:
                         {
                             snapWhenCreating = !snapWhenCreating;
+                        }
+                        break;
+
+                    // fill
+                    case Key.F:
+                        {
+                            enableFill = !enableFill;
+                            if (adorner != null)
+                                adorner.EnableFill = enableFill;
+                        }
+                        break;
+
+                    // increase stroke thickness
+                    case Key.OemPlus:
+                    case Key.Add:
+                        {
+                            if (strokeThickness < 15)
+                            {
+                                strokeThickness += 1;
+                                if (adorner != null)
+                                    adorner.StrokeThickness = strokeThickness;
+                            }
+                        }
+                        break;
+
+                    // decrease stroke thickness
+                    case Key.OemMinus:
+                    case Key.Subtract:
+                        {
+                            if (strokeThickness > 1)
+                            {
+                                strokeThickness -= 1;
+                                if (adorner != null)
+                                    adorner.StrokeThickness = strokeThickness;
+                            }
                         }
                         break;
                 }
@@ -552,7 +676,7 @@ namespace TemplateCreator
                 {
                     if (((adorner.X1 == adorner.X2) && (adorner.Y1 == adorner.Y2)) == false)
                     {
-                        var line = CreateLine(adorner.X1, adorner.Y1, x, y);
+                        var line = CreateLine(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         canvas.Children.Add(line);
                     }
                 }
@@ -560,7 +684,7 @@ namespace TemplateCreator
                 {
                     if (((adorner.X1 == adorner.X2) || (adorner.Y1 == adorner.Y2)) == false)
                     {
-                        var rect = CreateRect(adorner.X1, adorner.Y1, x, y);
+                        var rect = CreateRect(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         canvas.Children.Add(rect);
                     }
                 }
@@ -568,7 +692,7 @@ namespace TemplateCreator
                 {
                     if (((adorner.X1 == adorner.X2) || (adorner.Y1 == adorner.Y2)) == false)
                     {
-                        var circle = CreateCircle(adorner.X1, adorner.Y1, x, y);
+                        var circle = CreateCircle(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         canvas.Children.Add(circle);
                     }
                 }
@@ -605,32 +729,25 @@ namespace TemplateCreator
                         canvas.Children.Remove(OriginaLine);
 
                         var p = e.GetPosition(canvas);
-                        double x = snapWhenCreating == true ? Snap(p.X, snapX, snapOffsetX) : p.X;
-                        double y = snapWhenCreating == true ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
+                        double x0 = snapWhenCreating == true ? Snap(p.X, snapX, snapOffsetX) : p.X;
+                        double y0 = snapWhenCreating == true ? Snap(p.Y, snapY, snapOffsetY) : p.Y;
 
                         double x1 = OriginaLine.X1;
                         double y1 = OriginaLine.Y1;
                         double x2 = OriginaLine.X2;
                         double y2 = OriginaLine.Y2;
 
-                        double dx1 = x1 - x;
-                        double dy1 = y1 - y;
+                        bool result = CompareP0DistanceToP1P2(x0, y0, x1, y1, x2, y2) == 1;
 
-                        double dx2 = x2 - x;
-                        double dy2 = y2 - y;
-
-                        double d1 = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
-                        double d2 = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
-
-                        if (d1 > d2)
+                        if (result)
                         {
-                            AddAdorner(x1, y1, x, x, Tool.Line);
-                            UpdateTitle(x1, y1, x, x);
+                            AddAdorner(x1, y1, x0, x0, Tool.Line);
+                            UpdateTitle(x1, y1, x0, x0);
                         }
                         else
                         {
-                            AddAdorner(x2, y2, x, x, Tool.Line);
-                            UpdateTitle(x2, y2, x, x);
+                            AddAdorner(x2, y2, x0, x0, Tool.Line);
+                            UpdateTitle(x2, y2, x0, x0);
                         }
 
                         canvas.CaptureMouse();
@@ -651,6 +768,20 @@ namespace TemplateCreator
             }
         }
 
+        public static int CompareP0DistanceToP1P2(double p0x, double p0y, double p1x, double p1y, double p2x, double p2y)
+        {
+            double dx1 = p1x - p0x;
+            double dy1 = p1y - p0y;
+
+            double dx2 = p2x - p0x;
+            double dy2 = p2y - p0y;
+
+            double d1 = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
+            double d2 = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
+
+            return (d1 > d2) ? 1 : (d1 < d2) ? -1 : 0;
+        }
+
         #endregion
 
         #region Adorner
@@ -662,6 +793,8 @@ namespace TemplateCreator
 
             RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
 
+            adorner.StrokeThickness = strokeThickness;
+            adorner.EnableFill = enableFill;
             adorner.Tool = tool;
             adorner.CanvasWidth = canvas.Width;
             adorner.CanvasHeight = canvas.Height;
@@ -704,12 +837,12 @@ namespace TemplateCreator
 
         #region Line
 
-        private Line CreateLine(double x1, double y1, double x2, double y2)
+        private Line CreateLine(double x1, double y1, double x2, double y2, bool enableFill, double strokeThickness)
         {
             var line = new Line()
             {
                 Stroke = Brushes.Red,
-                StrokeThickness = 5.0,
+                StrokeThickness = strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
                 StrokeStartLineCap = PenLineCap.Square,
                 StrokeEndLineCap = PenLineCap.Square,
@@ -733,17 +866,18 @@ namespace TemplateCreator
 
         #region Rect
 
-        private Rectangle CreateRect(double x1, double y1, double x2, double y2)
+        private Rectangle CreateRect(double x1, double y1, double x2, double y2, bool enableFill, double strokeThickness)
         {
             var rect = new Rectangle()
             {
                 Stroke = Brushes.Red,
-                StrokeThickness = 0.0,
+                StrokeThickness = enableFill == true ? 0.0 : strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
                 StrokeStartLineCap = PenLineCap.Square,
                 StrokeEndLineCap = PenLineCap.Square,
-                Fill = Brushes.Red,
+                Fill = enableFill == true ? Brushes.Red : Brushes.Transparent,
                 SnapsToDevicePixels = false,
+                ClipToBounds = false
             };
 
             Panel.SetZIndex(rect, 3);
@@ -767,17 +901,17 @@ namespace TemplateCreator
 
         #region Circle
 
-        private Ellipse CreateCircle(double x1, double y1, double x2, double y2)
+        private Ellipse CreateCircle(double x1, double y1, double x2, double y2, bool enableFill, double strokeThickness)
         {
             var ellipse = new Ellipse()
             {
                 Stroke = Brushes.Red,
-                StrokeThickness = 0.0,
+                StrokeThickness = enableFill == true ? 0.0 : strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
                 StrokeStartLineCap = PenLineCap.Square,
                 StrokeEndLineCap = PenLineCap.Square,
-                Fill = Brushes.Red,
-                SnapsToDevicePixels = false,
+                Fill = enableFill == true ? Brushes.Red : Brushes.Transparent,
+                SnapsToDevicePixels = false
             };
 
             Panel.SetZIndex(ellipse, 3);
@@ -822,12 +956,14 @@ namespace TemplateCreator
                     double x2 = line.X2;
                     double y2 = line.Y2;
 
-                    sb.AppendFormat("{0};{1};{2};{3};{4}{5}",
+                    sb.AppendFormat("{0};{1};{2};{3};{4};{5};{6}{7}",
                         "line",
                         DoubleToString(x1),
                         DoubleToString(y1),
                         DoubleToString(x2),
                         DoubleToString(y2),
+                        line.Fill == Brushes.Transparent ? "0" : "1",
+                        DoubleToString(line.StrokeThickness),
                         Environment.NewLine);
                 }
                 else if (child is Rectangle)
@@ -839,12 +975,14 @@ namespace TemplateCreator
                     double x2 = x1 + rect.Width;
                     double y2 = y1 + rect.Height;
 
-                    sb.AppendFormat("{0};{1};{2};{3};{4}{5}",
+                    sb.AppendFormat("{0};{1};{2};{3};{4};{5};{6}{7}",
                         "rect",
                         DoubleToString(x1),
                         DoubleToString(y1),
                         DoubleToString(x2),
                         DoubleToString(y2),
+                        rect.Fill == Brushes.Transparent ? "0" : "1",
+                        DoubleToString(rect.StrokeThickness),
                         Environment.NewLine);
                 }
                 else if (child is Ellipse)
@@ -856,12 +994,14 @@ namespace TemplateCreator
                     double x2 = x1 + circle.Width;
                     double y2 = y1 + circle.Height;
                     
-                    sb.AppendFormat("{0};{1};{2};{3};{4}{5}",
+                    sb.AppendFormat("{0};{1};{2};{3};{4};{5};{6}{7}",
                         "circle",
                         DoubleToString(x1),
                         DoubleToString(y1),
                         DoubleToString(x2),
                         DoubleToString(y2),
+                        circle.Fill == Brushes.Transparent ? "0" : "1",
+                        DoubleToString(circle.StrokeThickness),
                         Environment.NewLine);
                 }
             }
@@ -878,37 +1018,46 @@ namespace TemplateCreator
             {
                 var args = line.Split(';');
 
-                if (args.Length == 5 &&
+                if (args.Length == 7 &&
                     string.Compare(args[0], "line", StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
                     double x1 = double.Parse(args[1]);
                     double y1 = double.Parse(args[2]);
                     double x2 = double.Parse(args[3]);
                     double y2 = double.Parse(args[4]);
+                    int fillFlag = int.Parse(args[5]);
+                    bool enableFill = (fillFlag == 0) ? false : (fillFlag == 1 ? true : false);
+                    double strokeThickness = double.Parse(args[6]);
 
-                    var l = CreateLine(x1, y1, x2, y2);
+                    var l = CreateLine(x1, y1, x2, y2, enableFill, strokeThickness);
                     canvas.Children.Add(l);
                 }
-                else if (args.Length == 5 &&
+                else if (args.Length == 7 &&
                     string.Compare(args[0], "rect", StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
                     double x1 = double.Parse(args[1]);
                     double y1 = double.Parse(args[2]);
                     double x2 = double.Parse(args[3]);
                     double y2 = double.Parse(args[4]);
+                    int fillFlag = int.Parse(args[5]);
+                    bool enableFill = (fillFlag == 0) ? false : (fillFlag == 1 ? true : false);
+                    double strokeThickness = double.Parse(args[6]);
 
-                    var r = CreateRect(x1, y1, x2, y2);
+                    var r = CreateRect(x1, y1, x2, y2, enableFill, strokeThickness);
                     canvas.Children.Add(r);
                 }
-                else if (args.Length == 5 &&
+                else if (args.Length == 7 &&
                     string.Compare(args[0], "circle", StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
                     double x1 = double.Parse(args[1]);
                     double y1 = double.Parse(args[2]);
                     double x2 = double.Parse(args[3]);
                     double y2 = double.Parse(args[4]);
+                    int fillFlag = int.Parse(args[5]);
+                    bool enableFill = (fillFlag == 0) ? false : (fillFlag == 1 ? true : false);
+                    double strokeThickness = double.Parse(args[6]);
 
-                    var c = CreateCircle(x1, y1, x2, y2);
+                    var c = CreateCircle(x1, y1, x2, y2, enableFill, strokeThickness);
                     canvas.Children.Add(c);
                 }
             }
@@ -916,6 +1065,9 @@ namespace TemplateCreator
 
         private void PushModel()
         {
+            if (redo.Count > 0)
+                redo.Clear();
+
             undo.Push(GenerateModel());
         }
 
