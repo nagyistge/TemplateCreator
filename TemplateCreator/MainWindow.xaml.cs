@@ -648,10 +648,14 @@ namespace TemplateCreator
             double height = rect.Height;
 
             width = Math.Max(0, width - dX);
-            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            if (width > 0)
+                width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
 
             height = Math.Max(0, height - dY);
-            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            if (height > 0)
+                height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
 
             x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
             y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
@@ -676,10 +680,14 @@ namespace TemplateCreator
             double height = rect.Height;
 
             width = Math.Max(0, width + dX);
-            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            if (width > 0)
+                width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
 
             height = Math.Max(0, height - dY);
-            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            if (height > 0)
+                height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
 
             y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
 
@@ -700,10 +708,14 @@ namespace TemplateCreator
             double height = rect.Height;
 
             width = Math.Max(0, width - dX);
-            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            if (width > 0)
+                width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
 
             height = Math.Max(0, height + dY);
-            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            if (height > 0)
+                height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
 
             x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
 
@@ -723,10 +735,14 @@ namespace TemplateCreator
             double height = rect.Height;
 
             width = Math.Max(0, width + dX);
-            width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            if (width > 0)
+                width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
 
             height = Math.Max(0, height + dY);
-            height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            if (height > 0)
+                height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
 
             rect.Width = width;
             rect.Height = height;
@@ -784,6 +800,218 @@ namespace TemplateCreator
 
     #endregion
 
+    #region EllipseAdorner
+
+    public class EllipseAdorner : Adorner
+    {
+        #region Fields
+
+        private double size = 12;
+        //private double strokeThickness = 2;
+        private Thumb thumb0 = null;
+        private Thumb thumb1 = null;
+        private Thumb thumb2 = null;
+        private Thumb thumb3 = null;
+        private Thumb thumb4 = null;
+        private VisualCollection visualCollection = null;
+
+        private bool EnableSnap = true;
+        private double SnapX = 15;
+        private double SnapY = 15;
+        private double SnapOffsetX = -0.5;
+        private double SnapOffsetY = 4.5;
+
+        private double SnapOffsetWidth = 1.0;
+        private double SnapOffsetHeight = 1.0;
+
+        #endregion
+
+        #region Constructor
+
+        public EllipseAdorner(UIElement adornedElement)
+            : base(adornedElement)
+        {
+            visualCollection = new VisualCollection(this);
+
+            thumb0 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeWE
+            };
+
+            thumb1 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeWE
+            };
+
+            thumb2 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeNS
+            };
+
+            thumb3 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbEllipseKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeNS
+            };
+
+            thumb4 = new Thumb()
+            {
+                Template = Application.Current.Windows[0].Resources["ThumbTransparentKey"] as ControlTemplate,
+                //Style = Application.Current.Windows[0].Resources["AdornerThumbStyleKey"] as Style,
+                Cursor = Cursors.SizeAll
+            };
+
+            thumb0.DragDelta += thumb0_DragDelta;
+            thumb1.DragDelta += thumb1_DragDelta;
+            thumb2.DragDelta += thumb2_DragDelta;
+            thumb3.DragDelta += thumb3_DragDelta;
+            thumb4.DragDelta += thumb4_DragDelta;
+
+            visualCollection.Add(thumb4);
+
+            visualCollection.Add(thumb0);
+            visualCollection.Add(thumb1);
+            visualCollection.Add(thumb2);
+            visualCollection.Add(thumb3);
+        }
+
+        void thumb0_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var ellipse = this.AdornedElement as Ellipse;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double x = Canvas.GetLeft(ellipse);
+            double y = Canvas.GetTop(ellipse);
+            double width = ellipse.Width;
+            double height = ellipse.Height;
+
+            width = Math.Max(0, width - dX);
+
+            if (width > 0)
+                width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
+
+            if (width > 0)
+                Canvas.SetLeft(ellipse, x);
+
+            ellipse.Width = width;
+        }
+
+        void thumb1_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var ellipse = this.AdornedElement as Ellipse;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double y = Canvas.GetTop(ellipse);
+            double width = ellipse.Width;
+            double height = ellipse.Height;
+
+            width = Math.Max(0, width + dX);
+
+            if (width > 0)
+                width = EnableSnap == true ? SnapUtil.Snap(width, SnapX, SnapOffsetWidth) : width;
+
+            ellipse.Width = width;
+        }
+
+        void thumb2_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var ellipse = this.AdornedElement as Ellipse;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double y = Canvas.GetTop(ellipse);
+            double width = ellipse.Width;
+            double height = ellipse.Height;
+
+            height = Math.Max(0, height - dY);
+
+            if (height > 0)
+                height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
+
+            if (height > 0)
+                Canvas.SetTop(ellipse, y);
+
+            ellipse.Height = height;
+        }
+
+        void thumb3_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var ellipse = this.AdornedElement as Ellipse;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double width = ellipse.Width;
+            double height = ellipse.Height;
+
+            height = Math.Max(0, height + dY);
+
+            if (height > 0)
+                height = EnableSnap == true ? SnapUtil.Snap(height, SnapY, SnapOffsetHeight) : height;
+
+            ellipse.Height = height;
+        }
+
+        void thumb4_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var ellipse = this.AdornedElement as Ellipse;
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+            double x = Canvas.GetLeft(ellipse);
+            double y = Canvas.GetTop(ellipse);
+
+            x = EnableSnap == true ? SnapUtil.Snap(x + dX, SnapX, SnapOffsetX) : x + dX;
+            y = EnableSnap == true ? SnapUtil.Snap(y + dY, SnapY, SnapOffsetY) : y + dY;
+
+            Canvas.SetLeft(ellipse, x);
+            Canvas.SetTop(ellipse, y);
+        }
+
+        protected override Visual GetVisualChild(int index)
+        {
+            return visualCollection[index];
+        }
+
+        protected override int VisualChildrenCount
+        {
+            get
+            {
+                return visualCollection.Count;
+            }
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var ellipse = this.AdornedElement as Ellipse;
+
+            double x = 0;
+            double y = 0;
+            double width = ellipse.Width;
+            double height = ellipse.Height;
+            double offset = size / 2;
+
+            thumb0.Arrange(new Rect(x - offset, (height / 2) - offset, size, size));
+            thumb1.Arrange(new Rect(width - offset, (height / 2) - offset, size, size));
+            thumb2.Arrange(new Rect((width / 2) - offset, y - offset, size, size));
+            thumb3.Arrange(new Rect((width / 2) - offset, y + height - offset, size, size));
+            thumb4.Arrange(new Rect(x, y, width, height));
+
+            return finalSize;
+        }
+
+        #endregion
+    }
+
+    #endregion
+
     #region MainWindow
 
     public partial class MainWindow : Window
@@ -791,6 +1019,8 @@ namespace TemplateCreator
         #region Fields
 
         private string appTitle = "Template Creator";
+
+        private bool showElementAdorners = false;
 
         private bool snapWhenCreating = true;
         private bool snapWhenMoving = true;
@@ -1055,6 +1285,42 @@ namespace TemplateCreator
                             }
                         }
                         break;
+
+                        // toggle element adorners
+                    case Key.H:
+                        {
+                            showElementAdorners = !showElementAdorners;
+
+                            if (showElementAdorners == true)
+                            {
+                                foreach (var element in canvas.Children)
+                                {
+                                    if (element is Line)
+                                    {
+                                        var line = element as Line;
+                                        AddLineAdorner(line);
+                                    }
+                                    else if (element is Rectangle)
+                                    {
+                                        var rect = element as Rectangle;
+                                        AddRectAdorner(rect);
+                                    }
+                                    else if (element is Ellipse)
+                                    {
+                                        var ellipse = element as Ellipse;
+                                        AddEllipseAdorner(ellipse);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var element in canvas.Children)
+                                {
+                                    RemoveAdorner(element as FrameworkElement);
+                                }
+                            }
+                        }
+                        break;
                 }
             }
         }
@@ -1153,7 +1419,9 @@ namespace TemplateCreator
                     {
                         var line = CreateLine(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         canvas.Children.Add(line);
-                        //AddLineAdorner(line);
+
+                        if (showElementAdorners == true)
+                            AddLineAdorner(line);
                     }
                 }
                 else if (tool == Tool.Rect)
@@ -1170,7 +1438,9 @@ namespace TemplateCreator
                         //var rect = CreateRect(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         var rect = CreateRect(r.Left, r.Top, r.Right, r.Bottom, enableFill, strokeThickness);
                         canvas.Children.Add(rect);
-                        //AddRectAdorner(rect);
+
+                        if (showElementAdorners == true)
+                            AddRectAdorner(rect);
                     }
                 }
                 else if (tool == Tool.Circle)
@@ -1187,6 +1457,9 @@ namespace TemplateCreator
                         //var circle = CreateCircle(adorner.X1, adorner.Y1, x, y, enableFill, strokeThickness);
                         var circle = CreateCircle(r.Left, r.Top, r.Right, r.Bottom, enableFill, strokeThickness);
                         canvas.Children.Add(circle);
+
+                        if (showElementAdorners == true)
+                            AddEllipseAdorner(circle);
                     }
                 }
 
@@ -1329,6 +1602,31 @@ namespace TemplateCreator
             adornerLayer.Add(adorner);
         }
 
+        private void AddEllipseAdorner(Ellipse ellipse)
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(ellipse);
+            var adorner = new EllipseAdorner(ellipse);
+
+            //RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
+
+            adornerLayer.Add(adorner);
+        }
+
+        private void RemoveAdorner(FrameworkElement element)
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(element);
+            
+            var adorners = adornerLayer.GetAdorners(element);
+
+            if (adorners != null)
+            {
+                foreach(var adorner in adorners)
+                {
+                    adornerLayer.Remove(adorner);
+                }
+            }
+        }
+
         #endregion
 
         #region Line
@@ -1340,8 +1638,8 @@ namespace TemplateCreator
                 Stroke = Brushes.Black,
                 StrokeThickness = strokeThickness,
                 StrokeLineJoin = PenLineJoin.Miter,
-                StrokeStartLineCap = PenLineCap.Square,
-                StrokeEndLineCap = PenLineCap.Square,
+                StrokeStartLineCap = PenLineCap.Flat,
+                StrokeEndLineCap = PenLineCap.Flat,
                 Fill = Brushes.Transparent
             };
 
@@ -1528,6 +1826,9 @@ namespace TemplateCreator
 
                     var l = CreateLine(x1, y1, x2, y2, enableFill, strokeThickness);
                     canvas.Children.Add(l);
+
+                    if (showElementAdorners == true)
+                        AddLineAdorner(l);
                 }
                 else if (args.Length == 7 &&
                     string.Compare(args[0], "rect", StringComparison.InvariantCultureIgnoreCase) == 0)
@@ -1542,6 +1843,9 @@ namespace TemplateCreator
 
                     var r = CreateRect(x1, y1, x2, y2, enableFill, strokeThickness);
                     canvas.Children.Add(r);
+
+                    if (showElementAdorners == true)
+                        AddRectAdorner(r);
                 }
                 else if (args.Length == 7 &&
                     string.Compare(args[0], "circle", StringComparison.InvariantCultureIgnoreCase) == 0)
@@ -1556,6 +1860,9 @@ namespace TemplateCreator
 
                     var c = CreateCircle(x1, y1, x2, y2, enableFill, strokeThickness);
                     canvas.Children.Add(c);
+
+                    if (showElementAdorners == true)
+                        AddEllipseAdorner(c);
                 }
             }
         }
